@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.env
+.env.local
+*.log
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Node
+node_modules/
+dist/
+dist-ssr/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+*.local
+.vite/
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+.DS_Store
+
+# Build / runtime
+*.sqlite3
+*.db
+.celerybeat-schedule
+celerybeat-schedule
+
+# Generated
+frontend/src/shared/api/generated.ts
+
+# Загруженные артефакты портала Заказчика (локальное хранилище)
+backend/var/
+var/artifacts/
+
+# Production/demo: секреты, бэкапы БД, TLS-сертификаты Let's Encrypt, htpasswd
+# Все реальные .env, кроме *.example, не коммитим.
+.env.*
+!.env.example
+backups/
+nginx/certbot/
+nginx/.htpasswd*
+
+# .NET (новый бэкенд) — артефакты сборки; миграции/исходники коммитим
+backend-dotnet/**/bin/
+backend-dotnet/**/obj/

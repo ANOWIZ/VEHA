@@ -1,0 +1,67 @@
+{
+  "realm": "psa",
+  "enabled": true,
+  "displayName": "PSA — Управление проектами",
+  "loginTheme": "keycloak",
+  "accessTokenLifespan": 1800,
+  "sslRequired": "external",
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Администратор системы" },
+      { "name": "director", "description": "Директор / руководство" },
+      { "name": "pm", "description": "Руководитель проекта" },
+      { "name": "presale", "description": "Пресейл" },
+      { "name": "engineer", "description": "Инженер" },
+      { "name": "finance", "description": "Финансы" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "psa-frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "redirectUris": ["http://localhost:5173/*", "http://localhost:3000/*"],
+      "webOrigins": ["http://localhost:5173", "http://localhost:3000"],
+      "attributes": { "pkce.code.challenge.method": "S256" }
+    },
+    {
+      "clientId": "psa-backend",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "change-me",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.demo",
+      "enabled": true,
+      "email": "admin@example.com",
+      "firstName": "Админ",
+      "lastName": "Демо",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "pm.demo",
+      "enabled": true,
+      "email": "pm@example.com",
+      "firstName": "Пётр",
+      "lastName": "Менеджеров",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["pm"]
+    },
+    {
+      "username": "eng.demo",
+      "enabled": true,
+      "email": "eng@example.com",
+      "firstName": "Иван",
+      "lastName": "Инженеров",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["engineer"]
+    }
+  ]
+}

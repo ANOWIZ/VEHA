@@ -1,0 +1,92 @@
+/* Шрифты с поддержкой кириллицы: Golos Text (Paratype, для UI), Manrope
+   (геометрический дисплейный), JetBrains Mono (табличные цифры/коды). */
+@import url("https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* «Инженерный реестр»: тёплая бумага, чернила, янтарный акцент. */
+    --paper: 40 33% 97%;
+    --background: 40 33% 97%;
+    --foreground: 222 22% 14%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 22% 14%;
+
+    /* Основное действие — чернила (премиальный, не «SaaS-синий»). */
+    --primary: 222 28% 14%;
+    --primary-foreground: 40 33% 97%;
+
+    --secondary: 40 18% 92%;
+    --secondary-foreground: 222 22% 18%;
+    --muted: 40 20% 94%;
+    --muted-foreground: 222 10% 42%;
+
+    /* Янтарный акцент — активная навигация, фокус, выделения. */
+    --accent: 36 96% 50%;
+    --accent-foreground: 222 28% 12%;
+
+    --destructive: 4 72% 50%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 152 52% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 33 92% 48%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 40 16% 86%;
+    --input: 40 16% 84%;
+    --ring: 36 96% 50%;
+    --radius: 0.5rem;
+
+    /* Тёмный «инк»-сайдбар. */
+    --sidebar: 222 30% 11%;
+    --sidebar-foreground: 220 15% 72%;
+    --sidebar-muted: 220 12% 52%;
+    --sidebar-active: 36 96% 55%;
+
+    --font-display: "Manrope", system-ui, sans-serif;
+    --font-body: "Golos Text", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    font-feature-settings: "ss01" 1, "cv01" 1;
+    /* Едва заметная бумажная текстура из двух радиальных бликов. */
+    background-image:
+      radial-gradient(1200px 600px at 100% -10%, hsl(36 96% 50% / 0.05), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, hsl(222 40% 30% / 0.04), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.015em;
+  }
+
+  /* Табличные цифры/коды/деньги — моноширинный шрифт. */
+  .tabular {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+}
+
+@layer components {
+  /* Микро-метка: капс, разрядка — для подписей в карточках/таблицах. */
+  .micro-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.08em] text-muted-foreground;
+  }
+
+  /* Тонкая верхняя «инженерная» линейка для секций. */
+  .hairline {
+    @apply border-t border-border;
+  }
+}

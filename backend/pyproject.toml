@@ -1,0 +1,79 @@
+[project]
+name = "psa-backend"
+version = "0.1.0"
+description = "PSA — личный кабинет управления проектами интегратора (backend)"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "gunicorn>=22.0",
+    "pydantic>=2.7",
+    "pydantic-settings>=2.3",
+    "sqlalchemy[asyncio]>=2.0.30",
+    "asyncpg>=0.29",
+    "alembic>=1.13",
+    "redis>=5.0",
+    "celery>=5.4",
+    "httpx>=0.27",
+    "python-jose[cryptography]>=3.3",
+    "openpyxl>=3.1",
+    "python-multipart>=0.0.9",
+    "orjson>=3.10",
+    "boto3>=1.34",  # S3/MinIO для артефактов портала (storage_backend=s3)
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2",
+    "pytest-asyncio>=0.23",
+    "factory-boy>=3.3",
+    "aiosqlite>=0.20",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "types-python-jose>=3.3",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["app", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "B008",  # FastAPI Depends(...) в дефолтах аргументов — это идиома
+    # Русскоязычный проект: кириллица в строках/комментариях/докстрингах не
+    # является «неоднозначным юникодом» — отключаем ложные срабатывания.
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    # Старый стиль дженериков (Generic[T]) допустим и читаем — не навязываем PEP 695.
+    "UP046",
+    "UP047",
+]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+strict = true
+ignore_missing_imports = true
+# strict требуем только для ядра ценности (services, schemas) — см. команды в CLAUDE.md
+files = ["app"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "integration: тесты, требующие реального Postgres",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]

@@ -1,0 +1,57 @@
+# E2E-стек на .NET-бэкенде (backend-dotnet) для проверки паритета перед снятием Python.
+# Порт 8000 совпадает с Python — фронт (VITE_PROXY_TARGET=http://backend:8000) не меняется.
+# Запуск:  docker compose -p veha-net -f docker-compose.dotnet.yml up -d --build
+# .NET применяет EF-миграции на старте (VEHA__AUTOMIGRATE=true) в отдельную БД-том.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-psa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psa}
+      POSTGRES_DB: ${POSTGRES_DB:-psa}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata-net:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-psa}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend-dotnet
+      dockerfile: Dockerfile
+    environment:
+      # Конфигурация Veha через ENV (12-factor): секция "Veha" -> VEHA__*.
+      VEHA__DBCONNECTION: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-psa};Username=${POSTGRES_USER:-psa};Password=${POSTGRES_PASSWORD:-psa}"
+      VEHA__AUTOMIGRATE: "true"
+      VEHA__AUTHDEVMODE: "true"
+      VEHA__CORSORIGINS__0: "http://localhost:5173"
+      ASPNETCORE_ENVIRONMENT: Development
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    environment:
+      VITE_API_BASE_URL: /api/v1
+      VITE_PROXY_TARGET: http://backend:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+
+volumes:
+  pgdata-net:

@@ -1,0 +1,106 @@
+# Окружение для разработки. Production-вариант — README.md.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-psa}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-psa}
+      POSTGRES_DB: ${POSTGRES_DB:-psa}
+    ports:
+      # Только localhost — БД не выставляется наружу (на VPS дополнительно ufw).
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-psa}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      # Хост-порт 6380, чтобы не конфликтовать с другими локальными Redis
+      # (внутри сети контейнеры всё равно обращаются по имени redis:6379).
+      # Только localhost — не выставляется наружу.
+      - "127.0.0.1:6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: dev-file
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./docs/keycloak:/opt/keycloak/data/import:ro
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      KEYCLOAK_SERVER_URL: http://keycloak:8080
+    ports:
+      # Только localhost: наружу в проде ходит nginx (TLS). Дев-доступ к localhost:8000 сохраняется.
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    volumes:
+      - ./backend:/app
+    depends_on:
+      - redis
+      - postgres
+    command: uv run celery -A app.tasks.celery_app worker --beat --loglevel=info
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: dev
+    env_file: .env
+    environment:
+      # Относительный API + прокси Vite на backend по имени сервиса — фронт не
+      # зависит от origin (работает и в браузере на localhost, и в Docker-сети).
+      VITE_API_BASE_URL: /api/v1
+      VITE_PROXY_TARGET: http://backend:8000
+    ports:
+      - "127.0.0.1:5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: npm run dev -- --host 0.0.0.0
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

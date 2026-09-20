@@ -1,0 +1,6 @@
+@Veha.Api_HostAddress = http://localhost:5210
+
+GET {{Veha.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

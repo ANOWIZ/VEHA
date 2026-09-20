@@ -1,0 +1,126 @@
+{
+  "realm": "veha",
+  "enabled": true,
+  "displayName": "Веха — Управление проектами",
+  "loginTheme": "keycloak",
+  "accessTokenLifespan": 1800,
+  "sslRequired": "external",
+  "roles": {
+    "realm": [
+      { "name": "admin", "description": "Администратор системы" },
+      { "name": "director", "description": "Директор / руководство" },
+      { "name": "pm", "description": "Руководитель проекта" },
+      { "name": "presale", "description": "Пресейл" },
+      { "name": "engineer", "description": "Инженер" },
+      { "name": "finance", "description": "Финансы" },
+      { "name": "client", "description": "Контакт Заказчика (внешний портал)" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "veha-frontend",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "_comment_redirectUris": "ЗАМЕНИТЕ на реальный origin фронта (https://домен/*).",
+      "redirectUris": [
+        "http://localhost:5173/*",
+        "http://localhost:3000/*",
+        "http://localhost/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://localhost"
+      ],
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "protocolMappers": [
+        {
+          "name": "veha-backend-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "veha-backend",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    },
+    {
+      "clientId": "veha-backend",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "CHANGE_ME_BACKEND_SECRET",
+      "serviceAccountsEnabled": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": true
+    }
+  ],
+  "users": [
+    {
+      "username": "admin.demo",
+      "enabled": true,
+      "email": "admin@example.com",
+      "firstName": "Админ",
+      "lastName": "Демо",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "director.demo",
+      "enabled": true,
+      "email": "director@example.com",
+      "firstName": "Дарья",
+      "lastName": "Директорова",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["director"]
+    },
+    {
+      "username": "pm.demo",
+      "enabled": true,
+      "email": "pm@example.com",
+      "firstName": "Пётр",
+      "lastName": "Менеджеров",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["pm"]
+    },
+    {
+      "username": "presale.demo",
+      "enabled": true,
+      "email": "presale@example.com",
+      "firstName": "Павел",
+      "lastName": "Пресейлов",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["presale"]
+    },
+    {
+      "username": "finance.demo",
+      "enabled": true,
+      "email": "finance@example.com",
+      "firstName": "Фаина",
+      "lastName": "Финансова",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["finance"]
+    },
+    {
+      "username": "eng.demo",
+      "enabled": true,
+      "email": "eng@example.com",
+      "firstName": "Иван",
+      "lastName": "Инженеров",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["engineer"]
+    },
+    {
+      "username": "client.demo",
+      "enabled": true,
+      "email": "client@example.com",
+      "firstName": "Клиент",
+      "lastName": "Заказчиков",
+      "credentials": [{ "type": "password", "value": "demo", "temporary": false }],
+      "realmRoles": ["client"]
+    }
+  ]
+}
